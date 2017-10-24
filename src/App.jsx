@@ -12,7 +12,7 @@ class IssueFilter extends React.Component{
 // this and IssueTable could be impleneted with arrow (ES2015) or function style
 const IssueRow =(props) => (
   <tr>
-    <td>{props.issue.id}</td>
+    <td>{props.issue._id}</td>
     <td>{props.issue.status}</td>
     <td>{props.issue.owner}</td>
     <td>{props.issue.created.toDateString()}</td>
@@ -42,7 +42,7 @@ class BorderWrap extends React.Component {
 }
 // this and IssueRow could be impleneted with arrow (ES2015) or function style
 function IssueTable (props) {
-  const issueRows = props.issues.map(issue => <IssueRow key={issue.id} issue={issue}/>)
+  const issueRows = props.issues.map(issue => <IssueRow key={issue._id} issue={issue}/>)
   return (
     <table className="bordered-table">
       <thead>
@@ -99,28 +99,38 @@ class IssueAdd extends React.Component{
 class IssueList extends React.Component{
   constructor() {
     super();
+    console.log('IssueList constructor');
     this.state = { issues: []};
     this.createIssue = this.createIssue.bind(this);
   }
 
-  ComponentdidMount() {
+  componentDidMount() {
+    console.log('ComponentDidMount');
     this.loadData();
   }
 
   loadData() {
-    fetch('/api/issues').then(response =>
-      response.json())
-      .then(data => {
-        console.log('Total count of records:', data._metadata.total_count);
-        data.records.forEach( issue => {
-          issue.created = new Date(issue.created);
-          if(issue.completionDate)
-            issue.completionDate = new Date(issue.completionDate);
+    fetch('/api/issues').then(response => {
+      console.log('Here now!');
+      if(response.ok) {
+        response.json()
+        .then(data => {
+          console.log('Total count of records:', data._metadata.total_count);
+          data.records.forEach( issue => {
+            issue.created = new Date(issue.created);
+            if(issue.completionDate)
+              issue.completionDate = new Date(issue.completionDate);
+          });
+          this.setState({issues: data.records });
         });
-        this.setState({issues: data.records });
-      }).catch(err => {
+      }else {
+        response.json().then(error => {
+          alert("failed to fetch issues:" + error.message);
+        });
+      }
+    }).catch(err => {
         console.log(err);
-      })
+      });
   }
 
   createIssue(newIssue) {

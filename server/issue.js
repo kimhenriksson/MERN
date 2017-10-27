@@ -1,4 +1,4 @@
-'use strict';
+
 
 const validateIssueStatus = {
   New: true,
@@ -17,6 +17,7 @@ const issueFieldType = {
   completionDate: 'optional',
   title: 'required',
 }
+
 function validateIssue(issue) {
   for(const field in issueFieldType) {
     const type = issueFieldType[field];
@@ -32,6 +33,6 @@ function validateIssue(issue) {
   return null;
 }
 
-module.export = {
+export default  {
   validateIssue: validateIssue
 };

@@ -16,23 +16,23 @@ const issueFieldType = {
   created: 'required',
   completionDate: 'optional',
   title: 'required',
-}
+};
 
 function validateIssue(issue) {
-  for(const field in issueFieldType) {
+  for (const field in issueFieldType) {
     const type = issueFieldType[field];
-    if(!type) {
+    if (!type) {
       delete issue[field];
     } else if (type === 'required' && !issue[field]) {
       return '${field} is required';
     }
   }
 
-  if(!validateIssueStatus[issue.status])
+  if (!validateIssueStatus[issue.status])
     return '${issue.status} is not valid status';
   return null;
 }
 
-export default  {
-  validateIssue: validateIssue
+export default {
+  validateIssue: validateIssue,
 };

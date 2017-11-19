@@ -1,12 +1,14 @@
 import React from 'react';
 import 'whatwg-fetch';
+import { Link } from 'react-router-dom';
 import IssueAdd from './IssueAdd.jsx';
 import IssueFilter from './IssueFilter.jsx';
+
 
 // this and IssueTable could be impleneted with arrow (ES2015) or function style
 const IssueRow =(props) => (
   <tr>
-    <td>{props.issue._id}</td>
+    <td><Link to={`/issue/${props.issue._id}`}>{props.issue._id.substr(-4)}</Link></td>
     <td>{props.issue.status}</td>
     <td>{props.issue.owner}</td>
     <td>{props.issue.created.toDateString()}</td>
@@ -27,7 +29,7 @@ function IssueTable (props) {
     <table className="bordered-table">
       <thead>
         <tr>
-          <th>Id</th>
+          <th>Iddd</th>
           <th>Status</th>
           <th>Owner</th>
           <th>Created</th>

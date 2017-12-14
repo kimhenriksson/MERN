@@ -3,7 +3,8 @@ import 'whatwg-fetch';
 import { Link } from 'react-router-dom';
 import IssueAdd from './IssueAdd.jsx';
 import IssueFilter from './IssueFilter.jsx';
-
+import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom'
 
 // this and IssueTable could be impleneted with arrow (ES2015) or function style
 const IssueRow =(props) => (
@@ -29,7 +30,7 @@ function IssueTable (props) {
     <table className="bordered-table">
       <thead>
         <tr>
-          <th>Iddd</th>
+          <th>Id</th>
           <th>Status</th>
           <th>Owner</th>
           <th>Created</th>
@@ -51,6 +52,7 @@ export default class IssueList extends React.Component{
     console.log('IssueList constructor');
     this.state = { issues: []};
     this.createIssue = this.createIssue.bind(this);
+    this.setFilter = this.setFilter.bind(this);
   }
 
   componentDidMount() {
@@ -58,8 +60,36 @@ export default class IssueList extends React.Component{
     this.loadData();
   }
 
+  componentDidUpdate(prevProps) {
+    const oldQuery = prevProps.location.search;
+    const newQuery = this.props.location.search;
+
+    for(var propname in this.props /*prevProps.location*/) {
+      console.log('this.prop:' + propname + ':' + this.props[propname]);
+    }
+    console.log("#######");
+    for(var propname in this.props.match /*prevProps.location*/) {
+      console.log('prop.match:' + propname + ':' + this.props.match[propname]);
+    }
+    console.log("#######");
+    for(var propname in this.props.history /*prevProps.location*/) {
+      console.log('prop.history:' + propname + ':' + this.props.history[propname]);
+    }
+    console.log("#######");
+    for(var propname in this.props.location /*prevProps.location*/) {
+      console.log('prop.location:' + propname + ':' + this.props.location[propname]);
+    }
+    console.log('oldQueryy:'+oldQuery + ':' + newQuery + ':' + prevProps.location.hash);
+    if(oldQuery === newQuery) {
+      console.log('returning');
+      return;
+    }
+    this.loadData();
+  }
+
   loadData() {
-    fetch('/api/issues').then(response => {
+    console.log("Load Data:"+`/api/issues${this.props.location.search}`);
+    fetch(`/api/issues${this.props.location.search}`).then(response => {
       console.log('Here now!');
       if(response.ok) {
         response.json()
@@ -80,6 +110,11 @@ export default class IssueList extends React.Component{
     }).catch(err => {
         console.log(err);
       });
+  }
+
+  setFilter(query) {
+    console.log('push:this.props.location.pathname:'+query['status'] + ':' + query.status);
+    this.props.location({pathname: this.props.location.pathname, query});
   }
 
   createIssue(newIssue) {
@@ -111,7 +146,7 @@ export default class IssueList extends React.Component{
     return(
       <div>
         <h1> Issue Tracker </h1>
-        <IssueFilter/>
+        <IssueFilter setFilter={this.setFilter}/>
         <hr />
           <IssueTable issues={this.state.issues}/>
         <hr />
@@ -121,3 +156,8 @@ export default class IssueList extends React.Component{
     );
   }
 }
+
+IssueList.propTypes = {
+  location: PropTypes.object.isRequired,
+  router: PropTypes.object,
+};

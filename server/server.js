@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import {MongoClient} from 'mongodb';
 import Issue from './issue.js';
 import SourceMapSupport from 'source-map-support';
+
 SourceMapSupport.install();
 
 const app = express();
@@ -12,7 +13,22 @@ app.use(express.static('static'));
 app.use(bodyParser.json());
 
 app.get('/api/issues',(req,res) => {
-  db.collection('issues').find().toArray().then(issues => {
+  const filter ={};
+  if(req.query.status) {
+    filter.status = req.query.status;
+    console.log(filter.status);
+  } else {
+    console.log("filter.status is empty");
+    for(var propname in req.params) {
+      console.log(propname);
+    }
+  }
+  if(req.query.effort_lte || req.query.effort_gte) filter.effort = {};
+  if(req.query.effort_lte) filter.effort.$lte = parseInt(req.query.effort_lte,10);
+  if(req.query.effort_gte) filter.effort.$gte = parseInt(req.query.effort_gte,10);
+
+  
+  db.collection('issues').find(filter).toArray().then(issues => {
     const metadata = { total_count:issues.length};
     res.json({_metadata:metadata, records: issues})
   }).catch(error => {
@@ -42,6 +58,11 @@ app.post('/api/issues',(req,res) => {
       res.status(500).json({message:'Internal Server Error: ${error}'})
     });
   });
+
+/*
+app.get('*', (req,res) => {
+  res.sendFile(path.resolve('static/index.html'));
+})*/
 
 let db;
 
